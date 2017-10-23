@@ -1,0 +1,33 @@
+# /etc/conf.d/fatbitd: config file for /etc/init.d/fatbitd
+
+# Config file location
+#FATBITD_CONFIGFILE="/etc/fatbit/fatbit.conf"
+
+# What directory to write pidfile to?  (created and owned by $FATBITD_USER)
+#FATBITD_PIDDIR="/var/run/fatbitd"
+
+# What filename to give the pidfile
+#FATBITD_PIDFILE="${FATBITD_PIDDIR}/fatbitd.pid"
+
+# Where to write fatbitd data (be mindful that the blockchain is large)
+#FATBITD_DATADIR="/var/lib/fatbitd"
+
+# User and group to own fatbitd process
+#FATBITD_USER="fatbit"
+#FATBITD_GROUP="fatbit"
+
+# Path to fatbitd executable
+#FATBITD_BIN="/usr/bin/fatbitd"
+
+# Nice value to run fatbitd under
+#FATBITD_NICE=0
+
+# Additional options (avoid -conf and -datadir, use flags above)
+FATBITD_OPTS="-disablewallet"
+
+# The timeout in seconds OpenRC will wait for fatbitd to terminate
+# after a SIGTERM has been raised.
+# Note that this will be mapped as argument to start-stop-daemon's
+# '--retry' option, which means you can specify a retry schedule
+# here. For more information see man 8 start-stop-daemon.
+FATBITD_SIGTERM_TIMEOUT=60

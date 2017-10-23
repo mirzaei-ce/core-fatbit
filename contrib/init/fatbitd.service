@@ -1,0 +1,22 @@
+[Unit]
+Description=Fatbit's distributed currency daemon
+After=network.target
+
+[Service]
+User=fatbit
+Group=fatbit
+
+Type=forking
+PIDFile=/var/lib/fatbitd/fatbitd.pid
+ExecStart=/usr/bin/fatbitd -daemon -pid=/var/lib/fatbitd/fatbitd.pid \
+-conf=/etc/fatbit/fatbit.conf -datadir=/var/lib/fatbitd -disablewallet
+
+Restart=always
+PrivateTmp=true
+TimeoutStopSec=60s
+TimeoutStartSec=2s
+StartLimitInterval=120s
+StartLimitBurst=5
+
+[Install]
+WantedBy=multi-user.target

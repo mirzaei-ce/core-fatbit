@@ -1,0 +1,3 @@
+debian/manpages/fatbitd.1
+debian/manpages/fatbit.conf.5
+debian/manpages/fatbit-cli.1

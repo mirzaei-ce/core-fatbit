@@ -1,0 +1,5 @@
+Building Fatbit
+
+See doc/build-*.md for instructions on building fatbitd,
+the intended-for-services, no-graphical-interface, reference
+implementation of Fatbit.

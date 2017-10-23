@@ -1,0 +1,92 @@
+#!/sbin/runscript
+
+# backward compatibility for existing gentoo layout 
+#
+if [ -d "/var/lib/fatbit/.fatbit" ]; then
+	FATBITD_DEFAULT_DATADIR="/var/lib/fatbit/.fatbit"
+else
+	FATBITD_DEFAULT_DATADIR="/var/lib/fatbitd"
+fi
+
+FATBITD_CONFIGFILE=${FATBITD_CONFIGFILE:-/etc/fatbit/fatbit.conf}
+FATBITD_PIDDIR=${FATBITD_PIDDIR:-/var/run/fatbitd}
+FATBITD_PIDFILE=${FATBITD_PIDFILE:-${FATBITD_PIDDIR}/fatbitd.pid}
+FATBITD_DATADIR=${FATBITD_DATADIR:-${FATBITD_DEFAULT_DATADIR}}
+FATBITD_USER=${FATBITD_USER:-${FATBIT_USER:-fatbit}}
+FATBITD_GROUP=${FATBITD_GROUP:-fatbit}
+FATBITD_BIN=${FATBITD_BIN:-/usr/bin/fatbitd}
+FATBITD_NICE=${FATBITD_NICE:-${NICELEVEL:-0}}
+FATBITD_OPTS="${FATBITD_OPTS:-${FATBIT_OPTS}}"
+
+name="Fatbit Core Daemon"
+description="Fatbit cryptocurrency P2P network daemon"
+
+command="/usr/bin/fatbitd"
+command_args="-pid=\"${FATBITD_PIDFILE}\" \
+		-conf=\"${FATBITD_CONFIGFILE}\" \
+		-datadir=\"${FATBITD_DATADIR}\" \
+		-daemon \
+		${FATBITD_OPTS}"
+
+required_files="${FATBITD_CONFIGFILE}"
+start_stop_daemon_args="-u ${FATBITD_USER} \
+			-N ${FATBITD_NICE} -w 2000"
+pidfile="${FATBITD_PIDFILE}"
+
+# The retry schedule to use when stopping the daemon. Could be either
+# a timeout in seconds or multiple signal/timeout pairs (like
+# "SIGKILL/180 SIGTERM/300")
+retry="${FATBITD_SIGTERM_TIMEOUT}"
+
+depend() {
+	need localmount net
+}
+
+# verify
+# 1) that the datadir exists and is writable (or create it)
+# 2) that a directory for the pid exists and is writable
+# 3) ownership and permissions on the config file
+start_pre() {
+	checkpath \
+	-d \
+	--mode 0750 \
+	--owner "${FATBITD_USER}:${FATBITD_GROUP}" \
+	"${FATBITD_DATADIR}"
+
+	checkpath \
+	-d \
+	--mode 0755 \
+	--owner "${FATBITD_USER}:${FATBITD_GROUP}" \
+	"${FATBITD_PIDDIR}"
+
+	checkpath -f \
+	-o ${FATBITD_USER}:${FATBITD_GROUP} \
+	-m 0660 \
+	${FATBITD_CONFIGFILE}
+
+	checkconfig || return 1
+}
+
+checkconfig()
+{
+	if ! grep -qs '^rpcpassword=' "${FATBITD_CONFIGFILE}" ; then
+		eerror ""
+		eerror "ERROR: You must set a secure rpcpassword to run fatbitd."
+		eerror "The setting must appear in ${FATBITD_CONFIGFILE}"
+		eerror ""
+		eerror "This password is security critical to securing wallets "
+		eerror "and must not be the same as the rpcuser setting."
+		eerror "You can generate a suitable random password using the following"
+		eerror "command from the shell:"
+		eerror ""
+		eerror "bash -c 'tr -dc a-zA-Z0-9 < /dev/urandom | head -c32 && echo'"
+		eerror ""
+		eerror "It is also recommended that you also set alertnotify so you are "
+		eerror "notified of problems:"
+		eerror ""
+		eerror "ie: alertnotify=echo %%s | mail -s \"Fatbit Alert\"" \
+			"admin@foo.com"
+		eerror ""
+		return 1
+	fi
+}

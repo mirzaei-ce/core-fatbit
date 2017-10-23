@@ -1,0 +1,6 @@
+usr/local/bin/fatbit-qt usr/bin
+share/pixmaps/fatbit32.xpm usr/share/pixmaps
+share/pixmaps/fatbit16.xpm usr/share/pixmaps
+share/pixmaps/fatbit128.png usr/share/pixmaps
+debian/fatbit-qt.desktop usr/share/applications
+debian/fatbit-qt.protocol usr/share/kde4/services/
